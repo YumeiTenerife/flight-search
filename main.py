@@ -167,6 +167,8 @@ async def search_flights(
     sort_by: str = Query("price", description="Sort results by: price | duration | stops"),
     no_overnight_layover: bool = Query(False, description="Exclude itineraries with 12+ hour overnight connections"),
     avoid_countries: Optional[str] = Query(None, description="Comma-separated ISO country codes to avoid for connections, e.g. US,TR"),
+    carry_on_bags: int = Query(0, ge=0, le=9, description="Number of carry-on bags per passenger"),
+    checked_bags: int = Query(0, ge=0, le=9, description="Number of checked bags per passenger"),
 ):
     if amadeus is None:
         raise HTTPException(
@@ -185,6 +187,8 @@ async def search_flights(
             return_date=return_date,
             adults=adults,
             currency=currency,
+            carry_on_bags=carry_on_bags,
+            checked_bags=checked_bags,
         )
     except AmadeusSearchError as e:
         raise HTTPException(status_code=400, detail=str(e))

@@ -17,6 +17,8 @@ export default function SearchForm({ onSearch, loading }) {
     trip_type: 'oneway',
     no_overnight_layover: false,
     avoid_countries: '',
+    carry_on_bags: 0,
+    checked_bags: 0,
   });
 
   const set = (key, val) => setForm(f => ({ ...f, [key]: val }));
@@ -196,6 +198,35 @@ export default function SearchForm({ onSearch, loading }) {
               />
             </div>
             <span className="avoid-hint">ISO country codes, comma-separated</span>
+          </div>
+
+          <div className="bags-wrap">
+            <div className="bags-label">Bags</div>
+            <div className="bags-row">
+              <div className="bag-selector">
+                <span className="bag-icon">🎒</span>
+                <span className="bag-name">Carry-on</span>
+                <div className="bag-counter">
+                  <button type="button" className="counter-btn"
+                    onClick={() => set('carry_on_bags', Math.max(0, form.carry_on_bags - 1))}>−</button>
+                  <span className="counter-val">{form.carry_on_bags}</span>
+                  <button type="button" className="counter-btn"
+                    onClick={() => set('carry_on_bags', Math.min(form.adults, form.carry_on_bags + 1))}>+</button>
+                </div>
+              </div>
+              <div className="bag-selector">
+                <span className="bag-icon">🧳</span>
+                <span className="bag-name">Checked</span>
+                <div className="bag-counter">
+                  <button type="button" className="counter-btn"
+                    onClick={() => set('checked_bags', Math.max(0, form.checked_bags - 1))}>−</button>
+                  <span className="counter-val">{form.checked_bags}</span>
+                  <button type="button" className="counter-btn"
+                    onClick={() => set('checked_bags', Math.min(form.adults, form.checked_bags + 1))}>+</button>
+                </div>
+              </div>
+            </div>
+            <span className="avoid-hint">Price updates to include bag fees</span>
           </div>
 
         </div>

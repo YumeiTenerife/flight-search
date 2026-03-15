@@ -59,8 +59,9 @@ class AmadeusClient:
                 "Free plan: 250 searches/month"
             )
 
-    def _base_params(self, currency: str, adults: int, cabin: str) -> dict:
-        return {
+    def _base_params(self, currency: str, adults: int, cabin: str,
+                     carry_on_bags: int = 0, checked_bags: int = 0) -> dict:
+        params = {
             "engine": "google_flights",
             "api_key": self.api_key,
             "currency": currency,
@@ -68,6 +69,11 @@ class AmadeusClient:
             "hl": "en",
             "travel_class": CABIN_CLASS_MAP.get(cabin.lower(), "1"),
         }
+        if carry_on_bags > 0:
+            params["carry_on_bags"] = min(carry_on_bags, adults)
+        if checked_bags > 0:
+            params["checked_bags"] = min(checked_bags, adults)
+        return params
 
     async def _get(self, params: dict) -> dict:
         async with httpx.AsyncClient() as client:
@@ -100,23 +106,26 @@ class AmadeusClient:
         adults: int = 1,
         currency: str = "USD",
         cabin_class: str = "Economy",
+        carry_on_bags: int = 0,
+        checked_bags: int = 0,
         max_results: int = 20,
     ) -> list[FlightOffer]:
         if return_date:
             return await self._search_roundtrip(
                 origin, destination, departure_date, return_date,
-                adults, currency, cabin_class, max_results
+                adults, currency, cabin_class, carry_on_bags, checked_bags, max_results
             )
         else:
             return await self._search_oneway(
                 origin, destination, departure_date,
-                adults, currency, cabin_class, max_results
+                adults, currency, cabin_class, carry_on_bags, checked_bags, max_results
             )
 
     async def _search_oneway(
-        self, origin, destination, departure_date, adults, currency, cabin_class, max_results
+        self, origin, destination, departure_date, adults, currency, cabin_class,
+        carry_on_bags, checked_bags, max_results
     ) -> list[FlightOffer]:
-        params = self._base_params(currency, adults, cabin_class)
+        params = self._base_params(currency, adults, cabin_class, carry_on_bags, checked_bags)
         params.update({
             "departure_id": origin.upper(),
             "arrival_id": destination.upper(),
@@ -129,9 +138,9 @@ class AmadeusClient:
 
     async def _search_roundtrip(
         self, origin, destination, departure_date, return_date,
-        adults, currency, cabin_class, max_results
+        adults, currency, cabin_class, carry_on_bags, checked_bags, max_results
     ) -> list[FlightOffer]:
-        params = self._base_params(currency, adults, cabin_class)
+        params = self._base_params(currency, adults, cabin_class, carry_on_bags, checked_bags)
         params.update({
             "departure_id": origin.upper(),
             "arrival_id": destination.upper(),
@@ -151,7 +160,7 @@ class AmadeusClient:
 
         return_flights_by_price = {}
         if departure_token:
-            ret_params = self._base_params(currency, adults, cabin_class)
+            ret_params = self._base_params(currency, adults, cabin_class, carry_on_bags, checked_bags)
             ret_params.update({
                 "departure_id": origin.upper(),
                 "arrival_id": destination.upper(),
