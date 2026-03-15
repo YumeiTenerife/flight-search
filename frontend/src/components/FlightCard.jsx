@@ -109,12 +109,24 @@ export default function FlightCard({ offer, currency, index }) {
           {offer.seats_available && (
             <div className="card-seats">{offer.seats_available} seats left</div>
           )}
-          <button
-            className="details-btn"
-            onClick={() => setExpanded(e => !e)}
-          >
-            {expanded ? 'Hide details' : 'View details'}
-          </button>
+          <div className="card-actions">
+            <button
+              className="details-btn"
+              onClick={() => setExpanded(e => !e)}
+            >
+              {expanded ? 'Hide details' : 'View details'}
+            </button>
+            {offer.booking_url && (
+              <a
+                href={offer.booking_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="book-btn"
+              >
+                Book →
+              </a>
+            )}
+          </div>
         </div>
       </div>
 

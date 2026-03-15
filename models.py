@@ -38,6 +38,8 @@ class FlightOffer(BaseModel):
     seats_available: Optional[int]
     cabin_class: str
     is_refundable: Optional[bool]
+    booking_url: Optional[str] = None
+    booking_agent: Optional[str] = None
 
 
 class FlightSearchResponse(BaseModel):

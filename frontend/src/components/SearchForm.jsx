@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import './SearchForm.css';
 
-const CABIN_CLASSES = ['Economy', 'Premium_Economy', 'Business', 'First'];
-const CURRENCIES = ['USD', 'CAD', 'EUR', 'GBP', 'AUD'];
+const CURRENCIES = ['USD', 'CAD', 'EUR', 'GBP', 'AUD', 'JPY', 'CHF', 'NZD'];
 
 export default function SearchForm({ onSearch, loading }) {
   const [form, setForm] = useState({
@@ -16,6 +15,8 @@ export default function SearchForm({ onSearch, loading }) {
     currency: 'USD',
     sort_by: 'price',
     trip_type: 'oneway',
+    no_overnight_layover: false,
+    avoid_countries: '',
   });
 
   const set = (key, val) => setForm(f => ({ ...f, [key]: val }));
@@ -26,6 +27,7 @@ export default function SearchForm({ onSearch, loading }) {
     if (!params.return_date || params.trip_type === 'oneway') delete params.return_date;
     if (!params.max_price) delete params.max_price;
     if (params.max_stops === '') delete params.max_stops;
+    if (!params.avoid_countries) delete params.avoid_countries;
     delete params.trip_type;
     onSearch(params);
   };
@@ -34,22 +36,30 @@ export default function SearchForm({ onSearch, loading }) {
 
   return (
     <form className="search-form" onSubmit={handleSubmit}>
-      {/* Trip type toggle */}
-      <div className="trip-toggle">
-        {['oneway', 'roundtrip'].map(t => (
-          <button
-            key={t}
-            type="button"
-            className={`toggle-btn ${form.trip_type === t ? 'active' : ''}`}
-            onClick={() => set('trip_type', t)}
-          >
-            {t === 'oneway' ? 'One Way' : 'Round Trip'}
-          </button>
-        ))}
+
+      {/* Top row: trip toggle + currency */}
+      <div className="form-top-row">
+        <div className="trip-toggle">
+          {['oneway', 'roundtrip'].map(t => (
+            <button
+              key={t}
+              type="button"
+              className={`toggle-btn ${form.trip_type === t ? 'active' : ''}`}
+              onClick={() => set('trip_type', t)}
+            >
+              {t === 'oneway' ? 'One Way' : 'Round Trip'}
+            </button>
+          ))}
+        </div>
+
+        <div className="currency-select">
+          <select value={form.currency} onChange={e => set('currency', e.target.value)}>
+            {CURRENCIES.map(c => <option key={c}>{c}</option>)}
+          </select>
+        </div>
       </div>
 
       <div className="form-grid">
-        {/* Origin */}
         <div className="form-group">
           <label>From</label>
           <div className="input-wrap">
@@ -65,7 +75,6 @@ export default function SearchForm({ onSearch, loading }) {
           </div>
         </div>
 
-        {/* Destination */}
         <div className="form-group">
           <label>To</label>
           <div className="input-wrap">
@@ -81,7 +90,6 @@ export default function SearchForm({ onSearch, loading }) {
           </div>
         </div>
 
-        {/* Departure date */}
         <div className="form-group">
           <label>Departure</label>
           <div className="input-wrap">
@@ -95,7 +103,6 @@ export default function SearchForm({ onSearch, loading }) {
           </div>
         </div>
 
-        {/* Return date */}
         {form.trip_type === 'roundtrip' && (
           <div className="form-group">
             <label>Return</label>
@@ -105,13 +112,12 @@ export default function SearchForm({ onSearch, loading }) {
                 min={form.departure_date || today}
                 value={form.return_date}
                 onChange={e => set('return_date', e.target.value)}
-                required={form.trip_type === 'roundtrip'}
+                required
               />
             </div>
           </div>
         )}
 
-        {/* Adults */}
         <div className="form-group form-group--sm">
           <label>Adults</label>
           <div className="input-wrap">
@@ -124,7 +130,6 @@ export default function SearchForm({ onSearch, loading }) {
           </div>
         </div>
 
-        {/* Max stops */}
         <div className="form-group form-group--sm">
           <label>Max Stops</label>
           <div className="input-wrap">
@@ -137,17 +142,6 @@ export default function SearchForm({ onSearch, loading }) {
           </div>
         </div>
 
-        {/* Currency */}
-        <div className="form-group form-group--sm">
-          <label>Currency</label>
-          <div className="input-wrap">
-            <select value={form.currency} onChange={e => set('currency', e.target.value)}>
-              {CURRENCIES.map(c => <option key={c}>{c}</option>)}
-            </select>
-          </div>
-        </div>
-
-        {/* Max price */}
         <div className="form-group form-group--sm">
           <label>Max Price</label>
           <div className="input-wrap">
@@ -161,7 +155,6 @@ export default function SearchForm({ onSearch, loading }) {
           </div>
         </div>
 
-        {/* Sort */}
         <div className="form-group form-group--sm">
           <label>Sort By</label>
           <div className="input-wrap">
@@ -171,6 +164,40 @@ export default function SearchForm({ onSearch, loading }) {
               <option value="duration">Duration</option>
             </select>
           </div>
+        </div>
+      </div>
+
+      {/* Extra filters */}
+      <div className="extra-filters">
+        <div className="filters-title">Filters</div>
+        <div className="filters-row">
+
+          <label className="checkbox-label">
+            <input
+              type="checkbox"
+              checked={form.no_overnight_layover}
+              onChange={e => set('no_overnight_layover', e.target.checked)}
+            />
+            <span className="checkbox-custom" />
+            <div className="checkbox-text-wrap">
+              <span className="checkbox-text">No overnight layovers</span>
+              <span className="checkbox-hint">Skip connections 12+ hours spanning midnight</span>
+            </div>
+          </label>
+
+          <div className="avoid-countries-wrap">
+            <label className="avoid-label">Avoid connections in</label>
+            <div className="input-wrap avoid-input">
+              <input
+                type="text"
+                placeholder="e.g. US, TR, AE"
+                value={form.avoid_countries}
+                onChange={e => set('avoid_countries', e.target.value.toUpperCase())}
+              />
+            </div>
+            <span className="avoid-hint">ISO country codes, comma-separated</span>
+          </div>
+
         </div>
       </div>
 
