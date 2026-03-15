@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './SearchForm.css';
+import AirportInput from './AirportInput';
 
 const CURRENCIES = ['USD', 'CAD', 'EUR', 'GBP', 'AUD', 'JPY', 'CHF', 'NZD'];
 
@@ -62,35 +63,23 @@ export default function SearchForm({ onSearch, loading }) {
       </div>
 
       <div className="form-grid">
-        <div className="form-group">
-          <label>From</label>
-          <div className="input-wrap">
-            <span className="input-icon">✈</span>
-            <input
-              type="text"
-              placeholder="YYZ"
-              maxLength={3}
-              value={form.origin}
-              onChange={e => set('origin', e.target.value.toUpperCase())}
-              required
-            />
-          </div>
-        </div>
+        <AirportInput
+          label="From"
+          icon="✈"
+          placeholder="City or airport..."
+          value={form.origin}
+          onChange={val => set('origin', val)}
+          required
+        />
 
-        <div className="form-group">
-          <label>To</label>
-          <div className="input-wrap">
-            <span className="input-icon">🏁</span>
-            <input
-              type="text"
-              placeholder="LHR"
-              maxLength={3}
-              value={form.destination}
-              onChange={e => set('destination', e.target.value.toUpperCase())}
-              required
-            />
-          </div>
-        </div>
+        <AirportInput
+          label="To"
+          icon="🏁"
+          placeholder="City or airport..."
+          value={form.destination}
+          onChange={val => set('destination', val)}
+          required
+        />
 
         <div className="form-group">
           <label>Departure</label>

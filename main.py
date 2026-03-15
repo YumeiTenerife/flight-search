@@ -144,6 +144,38 @@ def apply_filters(
     return offers
 
 
+@app.get("/autocomplete", tags=["Airports"])
+async def autocomplete_airports(q: str = Query(..., min_length=2, description="City or airport name")):
+    """Return airport suggestions for a search query via SerpApi autocomplete."""
+    import httpx
+    import os
+    api_key = os.getenv("SERPAPI_KEY")
+    if not api_key:
+        raise HTTPException(status_code=503, detail="SERPAPI_KEY not configured.")
+    if len(q) < 2:
+        return {"suggestions": []}
+    async with httpx.AsyncClient() as client:
+        resp = await client.get(
+            "https://serpapi.com/search",
+            params={"engine": "google_flights_autocomplete", "q": q, "hl": "en", "api_key": api_key},
+            timeout=8.0,
+        )
+    if resp.status_code != 200:
+        return {"suggestions": []}
+    data = resp.json()
+    results = []
+    for suggestion in data.get("suggestions", []):
+        for airport in suggestion.get("airports", []):
+            results.append({
+                "id": airport.get("id"),
+                "name": airport.get("name"),
+                "city": suggestion.get("name"),
+                "country": suggestion.get("description", ""),
+                "distance": airport.get("distance", ""),
+            })
+    return {"suggestions": results[:8]}
+
+
 @app.get("/", tags=["Health"])
 async def root():
     return {"status": "ok", "message": "Flight Search API is running. Visit /docs for the API reference."}

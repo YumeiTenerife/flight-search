@@ -8,6 +8,7 @@ export default defineConfig({
     proxy: {
       '/search': 'http://localhost:8000',
       '/health': 'http://localhost:8000',
+      '/autocomplete': 'http://localhost:8000',
     }
   }
 })

@@ -1,0 +1,144 @@
+.airport-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  position: relative;
+}
+
+.airport-label {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.airport-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.airport-input-wrap.airport-open .airport-input {
+  border-color: var(--gold);
+  background: var(--ink-muted);
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.airport-icon {
+  position: absolute;
+  left: 0.75rem;
+  font-size: 0.85rem;
+  pointer-events: none;
+  opacity: 0.5;
+  z-index: 1;
+}
+
+.airport-input {
+  width: 100%;
+  background: var(--ink-soft);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  font-weight: 400;
+  padding: 0.65rem 2.25rem 0.65rem 2.25rem;
+  outline: none;
+  transition: border-color 0.18s ease, background 0.18s ease;
+  font-family: inherit;
+}
+
+.airport-input::placeholder {
+  color: var(--text-muted);
+}
+
+.airport-input:focus {
+  border-color: var(--gold);
+  background: var(--ink-muted);
+}
+
+.airport-spinner {
+  position: absolute;
+  right: 0.75rem;
+  width: 13px;
+  height: 13px;
+  border: 2px solid var(--border-accent);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+.airport-check {
+  position: absolute;
+  right: 0.75rem;
+  font-size: 0.75rem;
+  color: var(--green);
+  font-weight: 700;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Dropdown */
+.airport-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: var(--surface-raised);
+  border: 1px solid var(--gold);
+  border-top: none;
+  border-bottom-left-radius: var(--radius-sm);
+  border-bottom-right-radius: var(--radius-sm);
+  list-style: none;
+  margin: 0;
+  padding: 0.3rem 0;
+  box-shadow: var(--shadow);
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.airport-option {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.6rem 0.85rem;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.airport-option:hover {
+  background: var(--ink-muted);
+}
+
+.option-code {
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--gold-light);
+  min-width: 36px;
+  letter-spacing: 0.04em;
+}
+
+.option-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.option-name {
+  font-size: 0.82rem;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.option-city {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
