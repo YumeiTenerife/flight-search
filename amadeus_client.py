@@ -109,7 +109,8 @@ class AmadeusClient:
         carry_on_bags: int = 0,
         checked_bags: int = 0,
         max_results: int = 20,
-    ) -> list[FlightOffer]:
+    ) -> tuple:
+        """Returns (list[FlightOffer], price_insights_dict | None)"""
         if return_date:
             return await self._search_roundtrip(
                 origin, destination, departure_date, return_date,
@@ -124,7 +125,7 @@ class AmadeusClient:
     async def _search_oneway(
         self, origin, destination, departure_date, adults, currency, cabin_class,
         carry_on_bags, checked_bags, max_results
-    ) -> list[FlightOffer]:
+    ) -> tuple:
         params = self._base_params(currency, adults, cabin_class, carry_on_bags, checked_bags)
         params.update({
             "departure_id": origin.upper(),
@@ -134,12 +135,13 @@ class AmadeusClient:
         })
         data = await self._get(params)
         raw_flights = data.get("best_flights", []) + data.get("other_flights", [])
-        return self._parse_oneway_offers(raw_flights[:max_results], currency, cabin_class)
+        offers = self._parse_oneway_offers(raw_flights[:max_results], currency, cabin_class)
+        return offers, self._parse_price_insights(data)
 
     async def _search_roundtrip(
         self, origin, destination, departure_date, return_date,
         adults, currency, cabin_class, carry_on_bags, checked_bags, max_results
-    ) -> list[FlightOffer]:
+    ) -> tuple:
         params = self._base_params(currency, adults, cabin_class, carry_on_bags, checked_bags)
         params.update({
             "departure_id": origin.upper(),
@@ -152,7 +154,7 @@ class AmadeusClient:
         outbound_raw = (data.get("best_flights", []) + data.get("other_flights", []))[:max_results]
 
         if not outbound_raw:
-            return []
+            return [], None
 
         departure_token = next(
             (f["departure_token"] for f in outbound_raw if f.get("departure_token")), None
@@ -213,7 +215,20 @@ class AmadeusClient:
             except (KeyError, ValueError, TypeError):
                 continue
 
-        return offers
+        return offers, self._parse_price_insights(data)
+
+    def _parse_price_insights(self, data: dict) -> Optional[dict]:
+        """Extract price_insights from a SerpApi response."""
+        pi = data.get("price_insights")
+        if not pi:
+            return None
+        typical = pi.get("typical_price_range", [None, None])
+        return {
+            "lowest_price": pi.get("lowest_price"),
+            "price_level": pi.get("price_level"),
+            "typical_price_low": typical[0] if len(typical) > 0 else None,
+            "typical_price_high": typical[1] if len(typical) > 1 else None,
+        }
 
     def _extract_booking(self, raw: dict) -> tuple:
         """

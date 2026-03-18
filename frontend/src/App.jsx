@@ -1,23 +1,54 @@
 import React, { useState } from 'react';
 import SearchForm from './components/SearchForm.jsx';
 import FlightCard from './components/FlightCard.jsx';
+import NearbyDatesChart from './components/NearbyDatesChart.jsx';
 import './App.css';
+
+const PRICE_LEVEL_CONFIG = {
+  low:     { label: 'Low price',     color: '#4caf84', bg: 'rgba(76,175,132,0.12)',  icon: '↓' },
+  typical: { label: 'Typical price', color: '#c9a84c', bg: 'rgba(201,168,76,0.12)', icon: '→' },
+  high:    { label: 'High price',    color: '#e05a5a', bg: 'rgba(224,90,90,0.12)',   icon: '↑' },
+};
+
+function PriceInsightsBadge({ insights, currency }) {
+  const cfg = PRICE_LEVEL_CONFIG[insights.price_level] || PRICE_LEVEL_CONFIG.typical;
+  const symbols = { USD: '$', CAD: 'CA$', EUR: '€', GBP: '£', AUD: 'A$' };
+  const sym = symbols[currency] || currency + ' ';
+  const fmt = (p) => p ? `${sym}${p.toLocaleString()}` : null;
+  const range = insights.typical_price_low && insights.typical_price_high
+    ? `Typical: ${fmt(insights.typical_price_low)} – ${fmt(insights.typical_price_high)}`
+    : null;
+  return (
+    <div className="price-insights-badge" style={{ '--pi-color': cfg.color, '--pi-bg': cfg.bg }}>
+      <span className="pi-icon">{cfg.icon}</span>
+      <div className="pi-text">
+        <span className="pi-level">{cfg.label}</span>
+        {range && <span className="pi-range">{range}</span>}
+      </div>
+    </div>
+  );
+}
+
+const CURRENCIES = ['USD', 'CAD', 'EUR', 'GBP', 'AUD', 'JPY', 'CHF', 'NZD'];
 
 export default function App() {
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [lastSearch, setLastSearch] = useState(null);
+  const [currency, setCurrency] = useState('USD');
 
   const handleSearch = async (params) => {
     setLoading(true);
     setError(null);
     setResults(null);
-    setLastSearch(params);
+    // Always use the global currency from the header
+    const mergedParams = { ...params, currency };
+    setLastSearch(mergedParams);
 
     try {
       const query = new URLSearchParams();
-      Object.entries(params).forEach(([k, v]) => {
+      Object.entries(mergedParams).forEach(([k, v]) => {
         if (v !== undefined && v !== null && v !== '') query.append(k, v);
       });
 
@@ -36,6 +67,14 @@ export default function App() {
     }
   };
 
+  const handleCurrencyChange = (newCurrency) => {
+    setCurrency(newCurrency);
+    // Auto-refresh if we already have search results
+    if (lastSearch) {
+      handleSearch({ ...lastSearch, currency: newCurrency });
+    }
+  };
+
   return (
     <div className="app">
       {/* Background decoration */}
@@ -49,7 +88,15 @@ export default function App() {
             <span className="logo-icon">✈</span>
             <span className="logo-text">Skyline</span>
           </div>
-          <div className="header-tagline">Flight Search</div>
+          <div className="header-controls">
+            <select
+              className="header-currency"
+              value={currency}
+              onChange={e => handleCurrencyChange(e.target.value)}
+            >
+              {CURRENCIES.map(c => <option key={c}>{c}</option>)}
+            </select>
+          </div>
         </div>
       </header>
 
@@ -65,7 +112,7 @@ export default function App() {
       {/* Main content */}
       <main className="main">
         <div className="container">
-          <SearchForm onSearch={handleSearch} loading={loading} />
+          <SearchForm onSearch={handleSearch} loading={loading} currency={currency} />
 
           {/* Error */}
           {error && (
@@ -88,6 +135,9 @@ export default function App() {
                 </span>
                 <span className="results-date">{results.departure_date}</span>
               </div>
+              {results.price_insights && (
+                <PriceInsightsBadge insights={results.price_insights} currency={results.currency} />
+              )}
             </div>
           )}
 
@@ -112,6 +162,22 @@ export default function App() {
                 />
               ))}
             </div>
+          )}
+
+          {/* Nearby dates chart */}
+          {results && lastSearch && (
+            <NearbyDatesChart
+              origin={results.origin}
+              destination={results.destination}
+              departureDate={results.departure_date}
+              currency={results.currency}
+              adults={lastSearch.adults || 1}
+              onSelectDate={(date) => {
+                const updated = { ...lastSearch, departure_date: date };
+                setLastSearch(updated);
+                handleSearch(updated);
+              }}
+            />
           )}
 
           {/* Loading skeleton */}

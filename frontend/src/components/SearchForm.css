@@ -44,33 +44,6 @@
   color: var(--gold-light);
 }
 
-/* Currency selector — top right */
-.currency-select select {
-  background: var(--ink-soft);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  color: var(--text-secondary);
-  font-size: 0.82rem;
-  font-weight: 500;
-  padding: 0.4rem 0.75rem;
-  cursor: pointer;
-  outline: none;
-  letter-spacing: 0.05em;
-  transition: border-color 0.18s ease;
-  appearance: none;
-  -webkit-appearance: none;
-}
-
-.currency-select select:hover,
-.currency-select select:focus {
-  border-color: var(--gold);
-  color: var(--gold-light);
-}
-
-.currency-select select option {
-  background: var(--ink-soft);
-}
-
 /* Main grid */
 .form-grid {
   display: grid;
@@ -152,6 +125,19 @@
 
 .input-wrap select option {
   background: var(--ink-soft);
+}
+
+.calendar-section {
+  margin-bottom: 1.25rem;
+}
+
+.calendar-section-label {
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 0.6rem;
+  font-weight: 500;
 }
 
 /* Extra filters section */

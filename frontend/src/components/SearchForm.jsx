@@ -2,9 +2,7 @@ import React, { useState } from 'react';
 import './SearchForm.css';
 import AirportInput from './AirportInput';
 
-const CURRENCIES = ['USD', 'CAD', 'EUR', 'GBP', 'AUD', 'JPY', 'CHF', 'NZD'];
-
-export default function SearchForm({ onSearch, loading }) {
+export default function SearchForm({ onSearch, loading, currency }) {
   const [form, setForm] = useState({
     origin: '',
     destination: '',
@@ -13,7 +11,6 @@ export default function SearchForm({ onSearch, loading }) {
     adults: 1,
     max_price: '',
     max_stops: '',
-    currency: 'USD',
     sort_by: 'price',
     trip_type: 'oneway',
     no_overnight_layover: false,
@@ -26,7 +23,7 @@ export default function SearchForm({ onSearch, loading }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const params = { ...form };
+    const params = { ...form, currency };
     if (!params.return_date || params.trip_type === 'oneway') delete params.return_date;
     if (!params.max_price) delete params.max_price;
     if (params.max_stops === '') delete params.max_stops;
@@ -40,7 +37,7 @@ export default function SearchForm({ onSearch, loading }) {
   return (
     <form className="search-form" onSubmit={handleSubmit}>
 
-      {/* Top row: trip toggle + currency */}
+      {/* Top row: trip toggle only — currency is now in the header */}
       <div className="form-top-row">
         <div className="trip-toggle">
           {['oneway', 'roundtrip'].map(t => (
@@ -53,12 +50,6 @@ export default function SearchForm({ onSearch, loading }) {
               {t === 'oneway' ? 'One Way' : 'Round Trip'}
             </button>
           ))}
-        </div>
-
-        <div className="currency-select">
-          <select value={form.currency} onChange={e => set('currency', e.target.value)}>
-            {CURRENCIES.map(c => <option key={c}>{c}</option>)}
-          </select>
         </div>
       </div>
 

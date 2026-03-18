@@ -9,6 +9,7 @@ export default defineConfig({
       '/search': 'http://localhost:8000',
       '/health': 'http://localhost:8000',
       '/autocomplete': 'http://localhost:8000',
+      '/price-calendar': 'http://localhost:8000',
     }
   }
 })

@@ -42,6 +42,13 @@ class FlightOffer(BaseModel):
     booking_agent: Optional[str] = None
 
 
+class PriceInsights(BaseModel):
+    lowest_price: Optional[float] = None
+    price_level: Optional[str] = None      # "low", "typical", "high"
+    typical_price_low: Optional[float] = None
+    typical_price_high: Optional[float] = None
+
+
 class FlightSearchResponse(BaseModel):
     origin: str
     destination: str
@@ -49,3 +56,4 @@ class FlightSearchResponse(BaseModel):
     results_count: int
     currency: str
     offers: List[FlightOffer]
+    price_insights: Optional[PriceInsights] = None

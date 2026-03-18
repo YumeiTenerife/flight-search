@@ -48,7 +48,7 @@ def _parse_dt(s: str):
 
 def _has_overnight_layover(offer: FlightOffer) -> bool:
     """
-    Returns True if any connection is 12+ hours AND spans the night window (22:00–06:00).
+    Returns True if any connection is 5+ hours AND spans the night window (22:00–04:00).
     """
     from datetime import timedelta
     for itin in offer.itineraries:
@@ -59,11 +59,11 @@ def _has_overnight_layover(offer: FlightOffer) -> bool:
             if not arr or not dep:
                 continue
             layover_mins = (dep - arr).total_seconds() / 60
-            if layover_mins < 720:
+            if layover_mins < 300:   # less than 5 hours — skip
                 continue
             cursor = arr
             while cursor < dep:
-                if cursor.hour >= 22 or cursor.hour < 6:
+                if cursor.hour >= 22 or cursor.hour < 4:
                     return True
                 cursor += timedelta(hours=1)
     return False
@@ -144,6 +144,50 @@ def apply_filters(
     return offers
 
 
+@app.get("/nearby-dates", tags=["Flights"])
+async def nearby_dates(
+    origin: str = Query(..., min_length=3, max_length=3),
+    destination: str = Query(..., min_length=3, max_length=3),
+    departure_date: date = Query(...),
+    currency: str = Query("USD"),
+    adults: int = Query(1, ge=1, le=9),
+):
+    """
+    Search ±3 days around the given date in parallel and return
+    the cheapest price found per date.
+    Uses asyncio.gather so all 7 searches run concurrently.
+    """
+    import asyncio
+    from datetime import timedelta
+
+    dates = [departure_date + timedelta(days=i) for i in range(-3, 4)]
+
+    async def search_one(d: date):
+        try:
+            offers, _ = await amadeus.search_flights(
+                origin=origin,
+                destination=destination,
+                departure_date=d,
+                adults=adults,
+                currency=currency,
+                max_results=5,
+            )
+            if offers:
+                return d.isoformat(), min(o.price for o in offers)
+        except Exception:
+            pass
+        return d.isoformat(), None
+
+    results = await asyncio.gather(*[search_one(d) for d in dates])
+
+    return {
+        "origin": origin.upper(),
+        "destination": destination.upper(),
+        "currency": currency,
+        "dates": [{"date": date_str, "price": price} for date_str, price in results],
+    }
+
+
 @app.get("/autocomplete", tags=["Airports"])
 async def autocomplete_airports(q: str = Query(..., min_length=2, description="City or airport name")):
     """Return airport suggestions for a search query via SerpApi autocomplete."""
@@ -212,7 +256,7 @@ async def search_flights(
         raise HTTPException(status_code=400, detail="return_date must be after departure_date.")
 
     try:
-        offers = await amadeus.search_flights(
+        offers, price_insights_raw = await amadeus.search_flights(
             origin=origin,
             destination=destination,
             departure_date=departure_date,
@@ -242,6 +286,9 @@ async def search_flights(
     elif sort_by == "stops":
         offers.sort(key=lambda o: o.itineraries[0].stops if o.itineraries else 99)
 
+    from models import PriceInsights
+    pi = PriceInsights(**price_insights_raw) if price_insights_raw else None
+
     return FlightSearchResponse(
         origin=origin.upper(),
         destination=destination.upper(),
@@ -249,6 +296,7 @@ async def search_flights(
         results_count=len(offers),
         currency=currency,
         offers=offers,
+        price_insights=pi,
     )
 
 
