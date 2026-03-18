@@ -94,26 +94,6 @@ curl -X POST http://localhost:8000/search \
 
 ---
 
-## 💻 CLI Usage
-
-```bash
-# One-way search
-python cli.py search --from YYZ --to LHR --date 2026-06-15
-
-# Round-trip with filters
-python cli.py search --from YYZ --to CDG \
-  --date 2026-06-15 --return-date 2026-06-25 \
-  --adults 2 --max-price 1500 --max-stops 1 --currency CAD
-
-# Non-stop only
-python cli.py search --from YYZ --to JFK --date 2026-07-01 --max-stops 0
-
-# Airport lookup
-python cli.py airport LHR
-```
-
----
-
 ## ⚠️ Round-Trip Note
 
 Google Flights requires two API calls for round-trips (one for outbound, one for return legs). This means a round-trip search costs **2 of your 250 monthly credits**. One-way searches cost 1.
