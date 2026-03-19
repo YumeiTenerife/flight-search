@@ -3,13 +3,14 @@
 ## Backend → Railway
 
 ### 1. Push your code to GitHub
-Make sure `flight-search/` (the backend folder) is in a GitHub repository.
+Make sure `flight-search/backend/` (the backend folder) is in a GitHub repository.
 
 ### 2. Create a Railway project
 1. Go to [railway.app](https://railway.app) and sign in with GitHub
 2. Click **New Project → Deploy from GitHub repo**
 3. Select your repository
-4. Railway will auto-detect Python and build using `requirements.txt`
+4. Set **Root Directory** to `backend`
+5. Railway will auto-detect Python and build using `requirements.txt`
 
 ### 3. Add a persistent volume (for alerts.db)
 1. In your Railway project, click **+ Add** → **Volume**
@@ -58,7 +59,7 @@ After adding the env var, trigger a redeploy from the Vercel dashboard.
 ## Local development (unchanged)
 ```bash
 # Terminal 1 — backend
-cd flight-search
+cd flight-search/backend
 python -m uvicorn main:app --reload
 
 # Terminal 2 — frontend

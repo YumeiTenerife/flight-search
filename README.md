@@ -1,6 +1,33 @@
-# ✈ Flight Search — Python + SerpApi (Google Flights)
+# ✈ Flight Search — Advanced Flight Filtering Tool
 
-A Skyscanner-style flight search tool with a **FastAPI REST backend** and a **CLI interface**, powered by [SerpApi's Google Flights API](https://serpapi.com/google-flights-api).
+A powerful flight search application that goes beyond standard flight search engines by providing **smart filtering options** that most websites don't offer. Built with **FastAPI backend** and **React frontend**, powered by [SerpApi's Google Flights API](https://serpapi.com/google-flights-api).
+
+## 🎯 Why This Project Exists
+
+Most flight search websites have frustrating limitations:
+- **Country-based connection filtering**: Most sites only let you exclude specific airports, not entire countries
+- **Overnight layover avoidance**: No easy way to avoid layovers longer than 6 hours between 11 PM and 6 AM
+- **Group luggage pricing**: Websites calculate luggage per person, but you often want total cost for your group (e.g., 2 adults + 2 kids sharing 3 carry-ons)
+
+This tool solves these problems with advanced filtering that actually works.
+
+## ✨ Unique Features
+
+### 🗺️ Country-Based Connection Filtering
+- Avoid entire countries for layovers (not just individual airports)
+- Perfect for travelers who want to avoid specific regions for security, visa, or comfort reasons
+
+### 🌙 Overnight Layover Prevention
+- Automatically exclude flights with layovers longer than 6 hours between 11 PM and 6 AM
+- No more sleeping in airports or dealing with overnight security procedures
+
+### 🧳 Smart Group Luggage Pricing
+- Calculate total luggage costs for your entire group, not per person
+- Example: 2 adults + 2 kids = 3 carry-ons total (not 4 separate calculations)
+
+### 📊 Price Insights & Trends
+- View price trends for ±3 days around your travel dates
+- Make informed decisions about when to book
 
 ---
 
@@ -8,12 +35,18 @@ A Skyscanner-style flight search tool with a **FastAPI REST backend** and a **CL
 
 ```
 flight_search/
-├── main.py             # FastAPI REST API
-├── cli.py              # Command-line interface
-├── amadeus_client.py   # SerpApi client (drop-in, same interface)
-├── models.py           # Pydantic data models
-├── requirements.txt
-└── .env                # Your API key (create this)
+├── backend/            # FastAPI REST API with advanced filtering
+│   ├── main.py
+│   ├── models.py
+│   ├── amadeus_client.py
+│   ├── requirements.txt
+│   └── .env
+└── frontend/           # React web interface
+    ├── src/
+    │   ├── App.jsx
+    │   ├── components/
+    │   └── ...
+    └── package.json
 ```
 
 ---
@@ -50,31 +83,64 @@ pip install -r requirements.txt
 
 ---
 
-## 🚀 REST API Usage
+## 🚀 Running the Application
 
+### Backend API
 ```bash
+# Navigate to backend directory
+cd backend
+
+# Install Python dependencies
+pip install -r requirements.txt
+
+# Start the FastAPI server
 uvicorn main:app --reload
 ```
 
 Visit **http://localhost:8000/docs** for the interactive Swagger UI.
 
+### Frontend Web Interface
+```bash
+# Navigate to frontend directory
+cd frontend
+
+# Install Node.js dependencies
+npm install
+
+# Start the development server
+npm run dev
+```
+
+Visit **http://localhost:5173** to use the web interface with all filtering options.
+
+---
+
+## ⚠️ Round-Trip Note
+
+Google Flights requires two API calls for round-trips (one for outbound, one for return legs). This means a round-trip search costs **2 of your 250 monthly credits**. One-way searches cost 1.
+
 ### GET /search
 
 ```
-GET /search?origin=YYZ&destination=LHR&departure_date=2026-06-15&adults=1&currency=CAD
+GET /search?origin=YYZ&destination=LHR&departure_date=2026-06-15&adults=1&currency=CAD&avoid_countries=RU,CN&no_overnight_layover=true&carry_on_bags=2&checked_bags=1
 ```
 
-| Parameter         | Required | Description                            | Example        |
-|------------------|----------|----------------------------------------|----------------|
-| `origin`         | ✅       | Origin IATA code                       | `YYZ`          |
-| `destination`    | ✅       | Destination IATA code                  | `LHR`          |
-| `departure_date` | ✅       | Date (YYYY-MM-DD)                      | `2026-06-15`   |
-| `return_date`    | ❌       | Return date for round-trips            | `2026-06-25`   |
-| `adults`         | ❌       | Passengers (default: 1)                | `2`            |
-| `max_price`      | ❌       | Filter: max total price                | `800`          |
-| `max_stops`      | ❌       | Filter: 0 = non-stop only              | `1`            |
-| `currency`       | ❌       | Currency code (default: USD)           | `CAD`          |
-| `sort_by`        | ❌       | `price` \| `stops` \| `duration`      | `price`        |
+| Parameter              | Required | Description                            | Example        |
+|-----------------------|----------|----------------------------------------|----------------|
+| `origin`              | ✅       | Origin IATA code                       | `YYZ`          |
+| `destination`         | ✅       | Destination IATA code                  | `LHR`          |
+| `departure_date`      | ✅       | Date (YYYY-MM-DD)                      | `2026-06-15`   |
+| `return_date`         | ❌       | Return date for round-trips            | `2026-06-25`   |
+| `adults`              | ❌       | Adult passengers (default: 1)          | `2`            |
+| `children`            | ❌       | Child passengers (default: 0)          | `2`            |
+| `max_price`           | ❌       | Filter: max total price                | `800`          |
+| `max_stops`           | ❌       | Filter: 0 = non-stop only              | `1`            |
+| `currency`            | ❌       | Currency code (default: USD)           | `CAD`          |
+| `sort_by`             | ❌       | `price` \| `stops` \| `duration`      | `price`        |
+| `avoid_countries`     | ❌       | Comma-separated country codes to avoid | `RU,CN`        |
+| `no_overnight_layover`| ❌       | Exclude layovers >6h between 23:00-06:00| `true`         |
+| `carry_on_bags`       | ❌       | Total carry-on bags for group          | `3`            |
+| `checked_bags`        | ❌       | Total checked bags for group           | `2`            |
 
 ### POST /search
 
@@ -86,9 +152,14 @@ curl -X POST http://localhost:8000/search \
     "destination": "CDG",
     "departure_date": "2026-06-15",
     "adults": 2,
+    "children": 2,
     "max_price": 1200,
     "max_stops": 1,
-    "currency": "USD"
+    "currency": "USD",
+    "avoid_countries": "RU,CN",
+    "no_overnight_layover": true,
+    "carry_on_bags": 3,
+    "checked_bags": 1
   }'
 ```
 
@@ -102,7 +173,14 @@ Google Flights requires two API calls for round-trips (one for outbound, one for
 
 ## 🛠 Extending the App
 
-- **Airport autocomplete** — SerpApi has a `google_flights_autocomplete` engine
-- **Price calendar** — find cheapest dates using the `google_travel_explore` engine
-- **Deep search** — add `deep_search=true` for results identical to the browser (slower)
-- **React frontend** — call your FastAPI backend from a web UI
+The project already includes:
+- ✅ **React frontend** — Full web interface with all filtering options
+- ✅ **Airport autocomplete** — SerpApi integration for airport suggestions
+- ✅ **Price trends** — ±3 day price analysis around your dates
+- ✅ **Advanced filtering** — Country avoidance, overnight layover prevention, group luggage pricing
+
+### Future Enhancements
+- **Price alerts** — Get notified when prices drop
+- **Deep search** — Add `deep_search=true` for results identical to the browser (slower)
+- **Mobile app** — React Native version for iOS/Android
+- **Multi-city searches** — Complex itineraries with multiple destinations
