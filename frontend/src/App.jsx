@@ -33,14 +33,71 @@ function PriceInsightsBadge({ insights, currency }) {
 
 const CURRENCIES = ['USD', 'CAD', 'EUR', 'GBP', 'AUD', 'JPY', 'CHF', 'NZD'];
 
+const COUNTRY_TO_CURRENCY = {
+  US: 'USD',
+  CA: 'CAD',
+  GB: 'GBP',
+  AU: 'AUD',
+  NZ: 'NZD',
+  JP: 'JPY',
+  CH: 'CHF',
+  EU: 'EUR',
+};
+
+function detectCurrencyFromLocale() {
+  const langs = navigator.languages || [navigator.language || 'en-US'];
+  for (const lang of langs) {
+    const regionMatch = lang.match(/-([A-Z]{2})$/i);
+    if (!regionMatch) continue;
+    const region = regionMatch[1].toUpperCase();
+    if (COUNTRY_TO_CURRENCY[region]) return COUNTRY_TO_CURRENCY[region];
+  }
+  return 'USD';
+}
+
+async function detectCurrencyFromIp() {
+  try {
+    const res = await fetch('https://ipapi.co/json');
+    if (!res.ok) return null;
+    const json = await res.json();
+    const country = (json.country || json.country_code || '').toUpperCase();
+    return COUNTRY_TO_CURRENCY[country] || null;
+  } catch {
+    return null;
+  }
+}
+
 export default function App() {
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [lastSearch, setLastSearch] = useState(null);
-  const [currency, setCurrency] = useState('USD');
+
+  const [currency, setCurrency] = useState(() => {
+    if (typeof window === 'undefined') return 'USD';
+
+    const stored = window.localStorage.getItem('currency');
+    if (stored && CURRENCIES.includes(stored)) return stored;
+
+    return detectCurrencyFromLocale();
+  });
+
   const [showAlertModal, setShowAlertModal] = useState(false);
   const [alertSuccess, setAlertSuccess] = useState(null);
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const explicit = window.localStorage.getItem('currencyExplicit') === 'true';
+    if (explicit) return; // user explicitly chose currency
+
+    detectCurrencyFromIp().then((ipCurrency) => {
+      if (!ipCurrency) return;
+      if (ipCurrency !== currency) {
+        setCurrency(ipCurrency);
+        window.localStorage.setItem('currency', ipCurrency);
+      }
+    });
+  }, []);
 
   const handleSearch = async (params) => {
     setLoading(true);
@@ -73,6 +130,11 @@ export default function App() {
 
   const handleCurrencyChange = (newCurrency) => {
     setCurrency(newCurrency);
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem('currency', newCurrency);
+      window.localStorage.setItem('currencyExplicit', 'true');
+    }
+
     // Auto-refresh if we already have search results
     if (lastSearch) {
       handleSearch({ ...lastSearch, currency: newCurrency });
