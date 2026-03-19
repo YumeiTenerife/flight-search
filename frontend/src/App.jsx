@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import SearchForm from './components/SearchForm';
-import FlightCard from './components/FlightCard';
-import NearbyDatesChart from './components/NearbyDatesChart';
-import SetAlertModal from './components/SetAlertModal';
+import SearchForm from './components/SearchForm.jsx';
+import FlightCard from './components/FlightCard.jsx';
+import NearbyDatesChart from './components/NearbyDatesChart.jsx';
+import SetAlertModal from './components/SetAlertModal.jsx';
 import { api } from './api.js';
 import './App.css';
 
