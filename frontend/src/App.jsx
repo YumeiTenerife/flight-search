@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import SearchForm from './components/SearchForm.jsx';
 import FlightCard from './components/FlightCard.jsx';
 import NearbyDatesChart from './components/NearbyDatesChart.jsx';
+import SetAlertModal from './components/SetAlertModal.jsx';
+import { api } from './api.js';
 import './App.css';
 
 const PRICE_LEVEL_CONFIG = {
@@ -37,6 +39,8 @@ export default function App() {
   const [error, setError] = useState(null);
   const [lastSearch, setLastSearch] = useState(null);
   const [currency, setCurrency] = useState('USD');
+  const [showAlertModal, setShowAlertModal] = useState(false);
+  const [alertSuccess, setAlertSuccess] = useState(null);
 
   const handleSearch = async (params) => {
     setLoading(true);
@@ -52,7 +56,7 @@ export default function App() {
         if (v !== undefined && v !== null && v !== '') query.append(k, v);
       });
 
-      const res = await fetch(`/search?${query.toString()}`);
+      const res = await api.get(`/search?${query.toString()}`);
       const data = await res.json();
 
       if (!res.ok) {
@@ -135,9 +139,24 @@ export default function App() {
                 </span>
                 <span className="results-date">{results.departure_date}</span>
               </div>
-              {results.price_insights && (
-                <PriceInsightsBadge insights={results.price_insights} currency={results.currency} />
-              )}
+              <div className="results-actions">
+                {results.price_insights && (
+                  <PriceInsightsBadge insights={results.price_insights} currency={results.currency} />
+                )}
+                <button
+                  className="set-alert-btn"
+                  onClick={() => { setAlertSuccess(null); setShowAlertModal(true); }}
+                >
+                  🔔 Set alert
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Alert success message */}
+          {alertSuccess && (
+            <div className="alert-success-box">
+              ✓ Alert created! You'll receive daily emails at <strong>{alertSuccess.email || 'your email'}</strong> when new flights are found.
             </div>
           )}
 
@@ -190,6 +209,17 @@ export default function App() {
           )}
         </div>
       </main>
+
+      {showAlertModal && lastSearch && (
+        <SetAlertModal
+          searchParams={lastSearch}
+          onClose={() => setShowAlertModal(false)}
+          onSuccess={(data) => {
+            setShowAlertModal(false);
+            setAlertSuccess({ ...data });
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -4,6 +4,7 @@ import {
   ResponsiveContainer, Cell
 } from 'recharts';
 import './NearbyDatesChart.css';
+import { api } from '../api.js';
 
 const CURRENCY_SYMBOLS = { USD: '$', CAD: 'CA$', EUR: '€', GBP: '£', AUD: 'A$' };
 
@@ -41,7 +42,7 @@ export default function NearbyDatesChart({ origin, destination, departureDate, c
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(
+      const res = await api.get(
         `/nearby-dates?origin=${origin}&destination=${destination}&departure_date=${departureDate}&currency=${currency}&adults=${adults}`
       );
       const json = await res.json();

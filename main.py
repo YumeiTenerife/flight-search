@@ -14,16 +14,36 @@ from datetime import date
 
 from models import FlightSearchRequest, FlightSearchResponse, FlightOffer
 from amadeus_client import AmadeusClient, AmadeusAuthError, AmadeusSearchError
+from database import init_db
+from alerts_router import router as alerts_router
+from scheduler import start_scheduler, stop_scheduler
+
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_db()
+    start_scheduler()
+    yield
+    stop_scheduler()
 
 app = FastAPI(
     title="Flight Search API",
-    description="Search for flights powered by the Amadeus API — similar to Skyscanner.",
+    description="Search for flights powered by SerpApi — similar to Skyscanner.",
     version="1.0.0",
+    lifespan=lifespan,
 )
+
+app.include_router(alerts_router)
+
+# In production set ALLOWED_ORIGINS env var to your Vercel URL
+# e.g. ALLOWED_ORIGINS=https://your-app.vercel.app
+import os
+allowed_origins = os.getenv("ALLOWED_ORIGINS", "*").split(",")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -48,7 +68,7 @@ def _parse_dt(s: str):
 
 def _has_overnight_layover(offer: FlightOffer) -> bool:
     """
-    Returns True if any connection is 5+ hours AND spans the night window (22:00–04:00).
+    Returns True if any connection is 5+ hours AND spans the night window (22:00–06:00).
     """
     from datetime import timedelta
     for itin in offer.itineraries:
@@ -63,7 +83,7 @@ def _has_overnight_layover(offer: FlightOffer) -> bool:
                 continue
             cursor = arr
             while cursor < dep:
-                if cursor.hour >= 22 or cursor.hour < 4:
+                if cursor.hour >= 22 or cursor.hour < 6:
                     return True
                 cursor += timedelta(hours=1)
     return False

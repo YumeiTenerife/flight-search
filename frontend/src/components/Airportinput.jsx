@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './AirportInput.css';
+import { api } from '../api.js';
 
 export default function AirportInput({ label, icon, value, onChange, placeholder, required }) {
   const [query, setQuery] = useState(value || '');
@@ -27,7 +28,7 @@ export default function AirportInput({ label, icon, value, onChange, placeholder
     clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(async () => {
       try {
-        const res = await fetch(`/autocomplete?q=${encodeURIComponent(q)}`);
+        const res = await api.get(`/autocomplete?q=${encodeURIComponent(q)}`);
         const data = await res.json();
         setSuggestions(data.suggestions || []);
         setOpen(true);
