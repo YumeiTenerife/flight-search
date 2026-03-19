@@ -184,3 +184,12 @@ The project already includes:
 - **Deep search** — Add `deep_search=true` for results identical to the browser (slower)
 - **Mobile app** — React Native version for iOS/Android
 - **Multi-city searches** — Complex itineraries with multiple destinations
+
+---
+
+## 🤖 Built with AI
+
+This project was **created with AI assistance** from:
+- **Claude** (Anthropic) — Backend architecture, API design, database setup, deployment configuration, and advanced flight filtering logic
+- **GitHub Copilot** — Frontend React components, styling, and UI interactions
+
