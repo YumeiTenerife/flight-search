@@ -19,6 +19,13 @@
   color: var(--gold-light);
 }
 
+.nearby-dates-error {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
 .nearby-icon {
   font-size: 0.9rem;
 }

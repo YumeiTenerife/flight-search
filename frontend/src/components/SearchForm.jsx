@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import './SearchForm.css';
 import AirportInput from './AirportInput';
 
 export default function SearchForm({ onSearch, loading, currency }) {
+  const { t } = useTranslation();
   const [form, setForm] = useState({
     origin: '',
     destination: '',
@@ -40,14 +42,14 @@ export default function SearchForm({ onSearch, loading, currency }) {
       {/* Top row: trip toggle only — currency is now in the header */}
       <div className="form-top-row">
         <div className="trip-toggle">
-          {['oneway', 'roundtrip'].map(t => (
+          {['oneway', 'roundtrip'].map(tripType => (
             <button
-              key={t}
+              key={tripType}
               type="button"
-              className={`toggle-btn ${form.trip_type === t ? 'active' : ''}`}
-              onClick={() => set('trip_type', t)}
+              className={`toggle-btn ${form.trip_type === tripType ? 'active' : ''}`}
+              onClick={() => set('trip_type', tripType)}
             >
-              {t === 'oneway' ? 'One Way' : 'Round Trip'}
+              {tripType === 'oneway' ? t('search.oneway') : t('search.roundtrip')}
             </button>
           ))}
         </div>
@@ -55,7 +57,7 @@ export default function SearchForm({ onSearch, loading, currency }) {
 
       <div className="form-grid">
         <AirportInput
-          label="From"
+          label={t('search.from')}
           icon="✈"
           placeholder="City or airport..."
           value={form.origin}
@@ -64,7 +66,7 @@ export default function SearchForm({ onSearch, loading, currency }) {
         />
 
         <AirportInput
-          label="To"
+          label={t('search.to')}
           icon="🏁"
           placeholder="City or airport..."
           value={form.destination}
@@ -73,7 +75,7 @@ export default function SearchForm({ onSearch, loading, currency }) {
         />
 
         <div className="form-group">
-          <label>Departure</label>
+          <label>{t('search.departure')}</label>
           <div className="input-wrap">
             <input
               type="date"
@@ -87,7 +89,7 @@ export default function SearchForm({ onSearch, loading, currency }) {
 
         {form.trip_type === 'roundtrip' && (
           <div className="form-group">
-            <label>Return</label>
+            <label>{t('search.return')}</label>
             <div className="input-wrap">
               <input
                 type="date"
@@ -101,7 +103,7 @@ export default function SearchForm({ onSearch, loading, currency }) {
         )}
 
         <div className="form-group form-group--sm">
-          <label>Adults</label>
+          <label>{t('search.adults')}</label>
           <div className="input-wrap">
             <input
               type="number"
@@ -113,19 +115,19 @@ export default function SearchForm({ onSearch, loading, currency }) {
         </div>
 
         <div className="form-group form-group--sm">
-          <label>Max Stops</label>
+          <label>{t('filters.maxStops')}</label>
           <div className="input-wrap">
             <select value={form.max_stops} onChange={e => set('max_stops', e.target.value)}>
-              <option value="">Any</option>
-              <option value="0">Non-stop</option>
-              <option value="1">1 stop</option>
-              <option value="2">2 stops</option>
+              <option value="">{t('results.any')}</option>
+              <option value="0">{t('results.stops_0')}</option>
+              <option value="1">{t('results.stops_1')}</option>
+              <option value="2">{t('results.stops_2')}</option>
             </select>
           </div>
         </div>
 
         <div className="form-group form-group--sm">
-          <label>Max Price</label>
+          <label>{t('filters.maxPrice')}</label>
           <div className="input-wrap">
             <input
               type="number"
@@ -138,12 +140,12 @@ export default function SearchForm({ onSearch, loading, currency }) {
         </div>
 
         <div className="form-group form-group--sm">
-          <label>Sort By</label>
+          <label>{t('filters.sort')}</label>
           <div className="input-wrap">
             <select value={form.sort_by} onChange={e => set('sort_by', e.target.value)}>
-              <option value="price">Price</option>
-              <option value="stops">Stops</option>
-              <option value="duration">Duration</option>
+              <option value="price">{t('filters.price')}</option>
+              <option value="stops">{t('filters.stops')}</option>
+              <option value="duration">{t('filters.duration')}</option>
             </select>
           </div>
         </div>
@@ -151,7 +153,7 @@ export default function SearchForm({ onSearch, loading, currency }) {
 
       {/* Extra filters */}
       <div className="extra-filters">
-        <div className="filters-title">Filters</div>
+        <div className="filters-title">{t('filters.filters')}</div>
         <div className="filters-row">
 
           <label className="checkbox-label">
@@ -162,13 +164,13 @@ export default function SearchForm({ onSearch, loading, currency }) {
             />
             <span className="checkbox-custom" />
             <div className="checkbox-text-wrap">
-              <span className="checkbox-text">No overnight layovers</span>
-              <span className="checkbox-hint">Skip connections 12+ hours spanning midnight</span>
+              <span className="checkbox-text">{t('filters.noOvernightLayovers')}</span>
+              <span className="checkbox-hint">{t('filters.noOvernightLayoversHint')}</span>
             </div>
           </label>
 
           <div className="avoid-countries-wrap">
-            <label className="avoid-label">Avoid connections in</label>
+            <label className="avoid-label">{t('filters.avoidConnections')}</label>
             <div className="input-wrap avoid-input">
               <input
                 type="text"
@@ -177,15 +179,15 @@ export default function SearchForm({ onSearch, loading, currency }) {
                 onChange={e => set('avoid_countries', e.target.value.toUpperCase())}
               />
             </div>
-            <span className="avoid-hint">ISO country codes, comma-separated</span>
+            <span className="avoid-hint">{t('filters.countryCodesHint')}</span>
           </div>
 
           <div className="bags-wrap">
-            <div className="bags-label">Bags</div>
+            <div className="bags-label">{t('filters.bags')}</div>
             <div className="bags-row">
               <div className="bag-selector">
                 <span className="bag-icon">🎒</span>
-                <span className="bag-name">Carry-on</span>
+                <span className="bag-name">{t('filters.carryon')}</span>
                 <div className="bag-counter">
                   <button type="button" className="counter-btn"
                     onClick={() => set('carry_on_bags', Math.max(0, form.carry_on_bags - 1))}>−</button>
@@ -196,7 +198,7 @@ export default function SearchForm({ onSearch, loading, currency }) {
               </div>
               <div className="bag-selector">
                 <span className="bag-icon">🧳</span>
-                <span className="bag-name">Checked</span>
+                <span className="bag-name">{t('filters.checked')}</span>
                 <div className="bag-counter">
                   <button type="button" className="counter-btn"
                     onClick={() => set('checked_bags', Math.max(0, form.checked_bags - 1))}>−</button>
@@ -215,10 +217,10 @@ export default function SearchForm({ onSearch, loading, currency }) {
       <button type="submit" className="search-btn" disabled={loading}>
         {loading ? (
           <span className="btn-loading">
-            <span className="spinner" /> Searching...
+            <span className="spinner" /> {t('search.searching')}
           </span>
         ) : (
-          'Search Flights'
+          t('search.searchBtn')
         )}
       </button>
     </form>

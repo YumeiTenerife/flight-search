@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Cell
@@ -18,7 +19,7 @@ function formatShortDate(dateStr) {
   return d.toLocaleDateString([], { weekday: 'short', day: 'numeric' });
 }
 
-const CustomTooltip = ({ active, payload, currency }) => {
+const CustomTooltip = ({ active, payload, currency, t }) => {
   if (!active || !payload?.length) return null;
   const { date, price } = payload[0].payload;
   const sym = CURRENCY_SYMBOLS[currency] || currency + ' ';
@@ -27,13 +28,14 @@ const CustomTooltip = ({ active, payload, currency }) => {
       <div className="tooltip-date">{formatDate(date)}</div>
       {price !== null
         ? <div className="tooltip-price">{sym}{price.toLocaleString()}</div>
-        : <div className="tooltip-unavailable">No flights found</div>
+        : <div className="tooltip-unavailable">{t('results.noFlightsFound')}</div>
       }
     </div>
   );
 };
 
 export default function NearbyDatesChart({ origin, destination, departureDate, currency, adults, onSelectDate }) {
+  const { t } = useTranslation();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -42,13 +44,23 @@ export default function NearbyDatesChart({ origin, destination, departureDate, c
     setLoading(true);
     setError(null);
     try {
-      const res = await api.get(
-        `/nearby-dates?origin=${origin}&destination=${destination}&departure_date=${departureDate}&currency=${currency}&adults=${adults}`
-      );
+      const url = `/nearby-dates?origin=${origin}&destination=${destination}&departure_date=${departureDate}&currency=${currency}&adults=${adults}`;
+      console.log('Fetching nearby dates:', url);
+      const res = await api.get(url);
+      
+      // Check if response is valid
+      const contentType = res.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        console.error('Invalid response type:', contentType, 'Status:', res.status);
+        throw new Error(`Backend returned ${res.status}. Make sure the backend server is running on port 8000.`);
+      }
+      
       const json = await res.json();
+      console.log('Nearby dates response:', json);
       if (!res.ok) throw new Error(json.detail || 'Failed to load nearby dates');
       setData(json.dates);
     } catch (e) {
+      console.error('Nearby dates error:', e);
       setError(e.message);
     } finally {
       setLoading(false);
@@ -70,12 +82,24 @@ export default function NearbyDatesChart({ origin, destination, departureDate, c
     return '#e05a5a';
   };
 
-  if (!data && !loading) {
+  if (!data && !loading && !error) {
     return (
       <button className="nearby-dates-btn" onClick={fetchDates}>
         <span className="nearby-icon">📅</span>
-        Compare nearby dates
+        {t('nearbyDates.compareNearbyDates')}
       </button>
+    );
+  }
+
+  if (!data && !loading && error) {
+    return (
+      <div className="nearby-dates-error">
+        <div className="chart-error">⚠ {error}</div>
+        <button className="nearby-dates-btn" onClick={fetchDates}>
+          <span className="nearby-icon">📅</span>
+          {t('nearbyDates.compareNearbyDates')}
+        </button>
+      </div>
     );
   }
 
@@ -83,7 +107,7 @@ export default function NearbyDatesChart({ origin, destination, departureDate, c
     <div className="nearby-dates-chart">
       <div className="chart-header">
         <div className="chart-title">
-          <span>Prices ±3 days around {formatDate(departureDate)}</span>
+          <span>{t('nearbyDates.pricesAround')} {formatDate(departureDate)}</span>
           <span className="chart-route">{origin} → {destination}</span>
         </div>
         <button className="chart-refresh" onClick={fetchDates} disabled={loading}>
@@ -96,7 +120,7 @@ export default function NearbyDatesChart({ origin, destination, departureDate, c
       {loading && (
         <div className="chart-loading">
           <div className="chart-skeleton" />
-          <p>Searching 7 dates in parallel...</p>
+          <p>{t('nearbyDates.searching')}</p>
         </div>
       )}
 
@@ -125,7 +149,7 @@ export default function NearbyDatesChart({ origin, destination, departureDate, c
                 tickLine={false}
                 width={56}
               />
-              <Tooltip content={<CustomTooltip currency={currency} />} cursor={{ fill: 'rgba(255,255,255,0.04)' }} />
+              <Tooltip content={<CustomTooltip currency={currency} t={t} />} cursor={{ fill: 'rgba(255,255,255,0.04)' }} />
               <Bar dataKey="price" radius={[4,4,0,0]} maxBarSize={48} style={{ cursor: 'pointer' }}>
                 {data.map((entry) => (
                   <Cell
@@ -139,10 +163,10 @@ export default function NearbyDatesChart({ origin, destination, departureDate, c
           </ResponsiveContainer>
 
           <div className="chart-legend">
-            <span className="legend-item"><span className="legend-dot" style={{background:'#4caf84'}} /> Cheapest</span>
-            <span className="legend-item"><span className="legend-dot" style={{background:'var(--gold)'}} /> Selected date</span>
-            <span className="legend-item"><span className="legend-dot" style={{background:'#e05a5a'}} /> Most expensive</span>
-            <span className="legend-item chart-hint">Click a bar to search that date</span>
+            <span className="legend-item"><span className="legend-dot" style={{background:'#4caf84'}} /> {t('nearbyDates.cheapest')}</span>
+            <span className="legend-item"><span className="legend-dot" style={{background:'var(--gold)'}} /> {t('nearbyDates.selectedDate')}</span>
+            <span className="legend-item"><span className="legend-dot" style={{background:'#e05a5a'}} /> {t('nearbyDates.mostExpensive')}</span>
+            <span className="legend-item chart-hint">{t('nearbyDates.clickToSearch')}</span>
           </div>
         </>
       )}

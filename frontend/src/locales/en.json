@@ -1,0 +1,82 @@
+{
+  "navigation": {
+    "searchFlights": "Search Flights"
+  },
+  "search": {
+    "tripType": "Trip Type",
+    "oneway": "One Way",
+    "roundtrip": "Round Trip",
+    "departure": "Departure",
+    "return": "Return",
+    "from": "From",
+    "to": "To",
+    "adults": "Adults",
+    "searchBtn": "Search Flights",
+    "searching": "Searching..."
+  },
+  "filters": {
+    "filters": "Filters",
+    "sort": "Sort By",
+    "price": "Price",
+    "stops": "Stops",
+    "duration": "Duration",
+    "maxPrice": "Max Price",
+    "maxStops": "Max Stops",
+    "noOvernightLayovers": "No overnight layovers",
+    "noOvernightLayoversHint": "Skip connections 6+ hours spanning midnight",
+    "avoidConnections": "Avoid connections in",
+    "countryCodesHint": "ISO country codes, comma-separated",
+    "bags": "Bags",
+    "carryon": "Carry-on",
+    "checked": "Checked",
+    "stop_singular": "stop",
+    "stops_plural": "stops"
+  },
+  "results": {
+    "noResults": "No results found",
+    "tryAdjustingFilters": "Try adjusting your filters or dates",
+    "any": "Any",
+    "stops_0": "Non-stop",
+    "stops_1": "1 stop",
+    "stops_2": "2 stops",
+    "stops_multiple": "{{count}} stops",
+    "duration": "Duration",
+    "priceFrom": "Price from",
+    "perPerson": "per person",
+    "setAlert": "Set Alert",
+    "viewDetails": "View details",
+    "hideDetails": "Hide details",
+    "lowPrice": "Low price",
+    "typicalPrice": "Typical price",
+    "highPrice": "High price",
+    "noFlightsFound": "No flights found"
+  },
+  "nearbyDates": {
+    "compareNearbyDates": "Compare nearby dates",
+    "pricesAround": "Prices ±3 days around",
+    "searching": "Searching 7 dates in parallel...",
+    "cheapest": "Cheapest",
+    "selectedDate": "Selected date",
+    "mostExpensive": "Most expensive",
+    "clickToSearch": "Click a bar to search that date"
+  },
+  "alerts": {
+    "setAlert": "Set Alert",
+    "email": "Email",
+    "maxPrice": "Max Price",
+    "save": "Save Alert",
+    "saved": "Alert saved!",
+    "error": "Error saving alert",
+    "description": "We'll email you once a day when new flights matching your current filters are found."
+  },
+  "itinerary": {
+    "outbound": "Outbound",
+    "return": "Return",
+    "seatsLeft": "{{count}} seats left",
+    "outboundSegments": "Outbound Segments",
+    "returnSegments": "Return Segments",
+    "book": "Book →"
+  },
+  "loading": "Loading...",
+  "error": "Error"
+}

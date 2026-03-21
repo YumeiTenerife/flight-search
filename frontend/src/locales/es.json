@@ -1,0 +1,82 @@
+{
+  "navigation": {
+    "searchFlights": "Buscar Vuelos"
+  },
+  "search": {
+    "tripType": "Tipo de Viaje",
+    "oneway": "Solo Ida",
+    "roundtrip": "Ida y Vuelta",
+    "departure": "Salida",
+    "return": "Regreso",
+    "from": "De",
+    "to": "Hacia",
+    "adults": "Adultos",
+    "searchBtn": "Buscar Vuelos",
+    "searching": "Buscando..."
+  },
+  "filters": {
+    "filters": "Filtros",
+    "sort": "Ordenar por",
+    "price": "Precio",
+    "stops": "Escalas",
+    "duration": "Duración",
+    "maxPrice": "Precio Máximo",
+    "maxStops": "Máximo de Escalas",
+    "noOvernightLayovers": "Sin escalas nocturnas",
+    "noOvernightLayoversHint": "Omitir conexiones de 6+ horas que cruzan medianoche",
+    "avoidConnections": "Evitar conexiones en",
+    "countryCodesHint": "Códigos de país ISO, separados por comas",
+    "bags": "Equipaje",
+    "carryon": "Mano",
+    "checked": "Maleta",
+    "stop_singular": "escala",
+    "stops_plural": "escalas"
+  },
+  "results": {
+    "noResults": "Sin resultados",
+    "tryAdjustingFilters": "Intenta ajustar tus filtros o fechas",
+    "any": "Cualquiera",
+    "stops_0": "Directo",
+    "stops_1": "1 escala",
+    "stops_2": "2 escalas",
+    "stops_multiple": "{{count}} escalas",
+    "duration": "Duración",
+    "priceFrom": "Desde",
+    "perPerson": "por persona",
+    "setAlert": "Crear Alerta",
+    "viewDetails": "Ver detalles",
+    "hideDetails": "Ocultar detalles",
+    "lowPrice": "Precio bajo",
+    "typicalPrice": "Precio típico",
+    "highPrice": "Precio alto",
+    "noFlightsFound": "Sin vuelos disponibles"
+  },
+  "nearbyDates": {
+    "compareNearbyDates": "Comparar fechas cercanas",
+    "pricesAround": "Precios ±3 días alrededor de",
+    "searching": "Buscando 7 fechas en paralelo...",
+    "cheapest": "Más barato",
+    "selectedDate": "Fecha seleccionada",
+    "mostExpensive": "Más caro",
+    "clickToSearch": "Haz clic en una barra para buscar esa fecha"
+  },
+  "alerts": {
+    "setAlert": "Crear Alerta",
+    "email": "Correo",
+    "maxPrice": "Precio Máximo",
+    "save": "Guardar Alerta",
+    "saved": "¡Alerta guardada!",
+    "error": "Error al guardar la alerta",
+    "description": "Te enviaremos un correo una vez al día cuando se encuentren vuelos nuevos que coincidan con tus filtros actuales."
+  },
+  "itinerary": {
+    "outbound": "Salida",
+    "return": "Regreso",
+    "seatsLeft": "{{count}} asientos disponibles",
+    "outboundSegments": "Segmentos de Salida",
+    "returnSegments": "Segmentos de Regreso",
+    "book": "Reservar →"
+  },
+  "loading": "Cargando...",
+  "error": "Error"
+}

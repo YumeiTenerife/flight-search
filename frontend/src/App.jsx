@@ -1,30 +1,34 @@
 import React, { useState } from 'react';
-import SearchForm from './components/SearchForm.jsx';
-import FlightCard from './components/FlightCard.jsx';
-import NearbyDatesChart from './components/NearbyDatesChart.jsx';
-import SetAlertModal from './components/SetAlertModal.jsx';
+import { useTranslation } from 'react-i18next';
+import SearchForm from './components/SearchForm';
+import FlightCard from './components/FlightCard';
+import NearbyDatesChart from './components/NearbyDatesChart';
+import SetAlertModal from './components/SetAlertModal';
+import LanguageSwitcher from './components/LanguageSwitcher';
 import { api } from './api.js';
 import './App.css';
 
 const PRICE_LEVEL_CONFIG = {
-  low:     { label: 'Low price',     color: '#4caf84', bg: 'rgba(76,175,132,0.12)',  icon: '↓' },
-  typical: { label: 'Typical price', color: '#c9a84c', bg: 'rgba(201,168,76,0.12)', icon: '→' },
-  high:    { label: 'High price',    color: '#e05a5a', bg: 'rgba(224,90,90,0.12)',   icon: '↑' },
+  low:     { labelKey: 'results.lowPrice',     color: '#4caf84', bg: 'rgba(76,175,132,0.12)',  icon: '↓' },
+  typical: { labelKey: 'results.typicalPrice', color: '#c9a84c', bg: 'rgba(201,168,76,0.12)', icon: '→' },
+  high:    { labelKey: 'results.highPrice',    color: '#e05a5a', bg: 'rgba(224,90,90,0.12)',   icon: '↑' },
 };
 
 function PriceInsightsBadge({ insights, currency }) {
+  const { t } = useTranslation();
   const cfg = PRICE_LEVEL_CONFIG[insights.price_level] || PRICE_LEVEL_CONFIG.typical;
+  const label = t(cfg.labelKey);
   const symbols = { USD: '$', CAD: 'CA$', EUR: '€', GBP: '£', AUD: 'A$' };
   const sym = symbols[currency] || currency + ' ';
   const fmt = (p) => p ? `${sym}${p.toLocaleString()}` : null;
   const range = insights.typical_price_low && insights.typical_price_high
-    ? `Typical: ${fmt(insights.typical_price_low)} – ${fmt(insights.typical_price_high)}`
+    ? `${t('results.typicalPrice')}: ${fmt(insights.typical_price_low)} – ${fmt(insights.typical_price_high)}`
     : null;
   return (
     <div className="price-insights-badge" style={{ '--pi-color': cfg.color, '--pi-bg': cfg.bg }}>
       <span className="pi-icon">{cfg.icon}</span>
       <div className="pi-text">
-        <span className="pi-level">{cfg.label}</span>
+        <span className="pi-level">{label}</span>
         {range && <span className="pi-range">{range}</span>}
       </div>
     </div>
@@ -68,6 +72,7 @@ async function detectCurrencyFromIp() {
 }
 
 export default function App() {
+  const { t } = useTranslation();
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -103,8 +108,8 @@ export default function App() {
     setLoading(true);
     setError(null);
     setResults(null);
-    // Always use the global currency from the header
-    const mergedParams = { ...params, currency };
+    // Use currency from params if provided (e.g., from currency change), otherwise use state
+    const mergedParams = { ...params, currency: params.currency || currency };
     setLastSearch(mergedParams);
 
     try {
@@ -155,6 +160,7 @@ export default function App() {
             <span className="logo-text">Skyline</span>
           </div>
           <div className="header-controls">
+            <LanguageSwitcher />
             <select
               className="header-currency"
               value={currency}
@@ -169,10 +175,10 @@ export default function App() {
       {/* Hero */}
       <section className="hero">
         <h1 className="hero-title">
-          Find your next<br />
-          <em>destination</em>
+          {t('search.searchBtn')}<br />
+          <em>{t('filters.filters')}</em>
         </h1>
-        <p className="hero-sub">Search hundreds of airlines in seconds</p>
+        <p className="hero-sub">{t('results.tryAdjustingFilters')}</p>
       </section>
 
       {/* Main content */}
@@ -194,7 +200,7 @@ export default function App() {
               <div className="results-summary">
                 <span className="results-count">{results.results_count}</span>
                 <span className="results-label">
-                  {results.results_count === 1 ? 'flight' : 'flights'} found
+                  {results.results_count === 1 ? t('results.stops_0') : t('results.duration')}
                 </span>
                 <span className="results-route">
                   {results.origin} → {results.destination}
@@ -209,7 +215,7 @@ export default function App() {
                   className="set-alert-btn"
                   onClick={() => { setAlertSuccess(null); setShowAlertModal(true); }}
                 >
-                  🔔 Set alert
+                  🔔 {t('alerts.setAlert')}
                 </button>
               </div>
             </div>
@@ -226,8 +232,8 @@ export default function App() {
           {results && results.results_count === 0 && (
             <div className="empty-state">
               <div className="empty-icon">✈</div>
-              <div className="empty-title">No flights found</div>
-              <div className="empty-sub">Try adjusting your filters or dates</div>
+              <div className="empty-title">{t('results.noResults')}</div>
+              <div className="empty-sub">{t('results.tryAdjustingFilters')}</div>
             </div>
           )}
 

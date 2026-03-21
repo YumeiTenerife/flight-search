@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import './SetAlertModal.css';
 import { api } from '../api.js';
 
 export default function SetAlertModal({ searchParams, onClose, onSuccess }) {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -35,7 +37,7 @@ export default function SetAlertModal({ searchParams, onClose, onSuccess }) {
         <div className="modal-header">
           <div className="modal-title">
             <span className="modal-icon">🔔</span>
-            Set flight alert
+            {t('alerts.setAlert')}
           </div>
           <button className="modal-close" onClick={onClose}>✕</button>
         </div>
@@ -46,7 +48,7 @@ export default function SetAlertModal({ searchParams, onClose, onSuccess }) {
         </div>
 
         <p className="modal-desc">
-          We'll email you once a day when new flights matching your current filters are found.
+          {t('alerts.description')}
         </p>
 
         <form className="modal-form" onSubmit={handleSubmit}>
@@ -62,7 +64,7 @@ export default function SetAlertModal({ searchParams, onClose, onSuccess }) {
           </div>
           {error && <div className="modal-error">⚠ {error}</div>}
           <button type="submit" className="modal-submit" disabled={loading}>
-            {loading ? 'Creating alert...' : 'Create alert'}
+            {loading ? t('search.searching') : t('alerts.save')}
           </button>
         </form>
       </div>

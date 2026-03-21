@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import './FlightCard.css';
 
 function formatTime(isoStr) {
@@ -21,12 +22,13 @@ function formatDate(isoStr) {
   }
 }
 
-function StopsLabel({ stops }) {
-  if (stops === 0) return <span className="stops-badge stops-nonstop">Non-stop</span>;
-  return <span className="stops-badge stops-connecting">{stops} stop{stops > 1 ? 's' : ''}</span>;
+function StopsLabel({ stops, t }) {
+  if (stops === 0) return <span className="stops-badge stops-nonstop">{t('results.stops_0')}</span>;
+  return <span className="stops-badge stops-connecting">{stops} {stops > 1 ? t('filters.stops_plural') : t('filters.stop_singular')}</span>;
 }
 
 function Leg({ itinerary, label }) {
+  const { t } = useTranslation();
   const first = itinerary.segments[0];
   const last = itinerary.segments[itinerary.segments.length - 1];
 
@@ -49,7 +51,7 @@ function Leg({ itinerary, label }) {
             <div className="leg-line-track" />
             <div className="leg-line-dot" />
           </div>
-          <StopsLabel stops={itinerary.stops} />
+          <StopsLabel stops={itinerary.stops} t={t} />
         </div>
 
         <div className="leg-endpoint leg-endpoint--right">
@@ -76,6 +78,7 @@ function Leg({ itinerary, label }) {
 }
 
 export default function FlightCard({ offer, currency, index }) {
+  const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
   const isRoundtrip = offer.itineraries.length > 1;
 
@@ -92,7 +95,7 @@ export default function FlightCard({ offer, currency, index }) {
             <Leg
               key={i}
               itinerary={itin}
-              label={isRoundtrip ? (i === 0 ? 'Outbound' : 'Return') : null}
+              label={isRoundtrip ? (i === 0 ? t('itinerary.outbound') : t('itinerary.return')) : null}
             />
           ))}
         </div>
@@ -107,14 +110,16 @@ export default function FlightCard({ offer, currency, index }) {
             {offer.cabin_class.replace('_', ' ').toLowerCase().replace(/\b\w/g, c => c.toUpperCase())}
           </div>
           {offer.seats_available && (
-            <div className="card-seats">{offer.seats_available} seats left</div>
+            <div className="card-seats">
+              {t('itinerary.seatsLeft', { count: offer.seats_available })}
+            </div>
           )}
           <div className="card-actions">
             <button
               className="details-btn"
               onClick={() => setExpanded(e => !e)}
             >
-              {expanded ? 'Hide details' : 'View details'}
+              {expanded ? t('results.hideDetails') : t('results.viewDetails')}
             </button>
             {offer.booking_url && (
               <a
@@ -123,7 +128,7 @@ export default function FlightCard({ offer, currency, index }) {
                 rel="noopener noreferrer"
                 className="book-btn"
               >
-                Book →
+                {t('itinerary.book')}
               </a>
             )}
           </div>
@@ -136,7 +141,7 @@ export default function FlightCard({ offer, currency, index }) {
           {offer.itineraries.map((itin, i) => (
             <div key={i}>
               {isRoundtrip && (
-                <div className="detail-leg-label">{i === 0 ? 'Outbound Segments' : 'Return Segments'}</div>
+                <div className="detail-leg-label">{i === 0 ? t('itinerary.outboundSegments') : t('itinerary.returnSegments')}</div>
               )}
               {itin.segments.map((seg, j) => (
                 <div key={j} className="detail-segment">
