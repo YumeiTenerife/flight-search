@@ -1,0 +1,32 @@
+# Test files
+**/__pycache__
+**/*.pyc
+**/tests/
+**/test_*.py
+*/.pytest_cache
+**/venv/
+**/.venv/
+
+# Development
+.git
+.gitignore
+*.md
+.env.example
+*.log
+
+# Frontend
+frontend/node_modules
+frontend/.next
+frontend/dist
+frontend/.vite
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
